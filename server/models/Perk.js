@@ -58,8 +58,7 @@ const PerksSchema = new mongoose.Schema({
 });
 
 PerksSchema.statics.toAPI = (doc) => ({
-  name: doc.name,
-  sex: doc.sex,
+  perks: doc.perks,
 });
 
 PerksModel = mongoose.model('Perks', PerksSchema);
