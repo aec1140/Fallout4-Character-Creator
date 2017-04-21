@@ -2,12 +2,11 @@ const mongoose = require('mongoose');
 mongoose.Promise = global.Promise;
 const _ = require('underscore');
 
-let CharacterModel = {};
+let PerkModel = {};
 
 const convertId = mongoose.Types.ObjectId;
-const setName = (name) => _.escape(name).trim();
 
-const CharacterSchema = new mongoose.Schema({
+const PerksSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -25,19 +24,8 @@ const CharacterSchema = new mongoose.Schema({
   level: {
     type: Number,
     min: 1,
+    required: true,
     default: 1,
-  },
-
-  special: {
-    type: mongoose.Schema.ObjectId,
-    required: true,
-    ref: 'Special',
-  },
-
-  perks: {
-    type: mongoose.Schema.ObjectId,
-    required: true,
-    ref: 'Perks',
   },
 
   owner: {
