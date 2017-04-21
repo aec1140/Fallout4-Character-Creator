@@ -26,6 +26,12 @@ var deleteCharacter = function deleteCharacter(e) {
   });
 };
 
+var updateCharacter = function updateCharacter(e) {
+  sendAjax('POST', '/updateCharacter', $("#characterForm").serialize() + '&id=' + e.target.id, function () {
+    characterRenderer.loadCharactersFromServer();
+  });
+};
+
 var renderCharacterPreview = function renderCharacterPreview() {
   return React.createElement(
     "form",
@@ -82,7 +88,7 @@ var renderCharacterList = function renderCharacterList() {
   var characterNodes = this.state.data.map(function (character) {
     return React.createElement(
       "div",
-      { key: character._id, className: "character", onClick: this.handleDelete },
+      { key: character._id, className: "character", id: character._id, onClick: this.handleUpdate },
       React.createElement("img", { src: "/assets/img/domoface.jpeg", alt: "domo face", className: "domoFace" }),
       React.createElement(
         "h3",
@@ -92,14 +98,14 @@ var renderCharacterList = function renderCharacterList() {
         " "
       ),
       React.createElement(
-        "h2",
+        "h3",
         { className: "characterSex" },
         " Sex: ",
         character.sex,
         " "
       ),
       React.createElement(
-        "h2",
+        "h3",
         { className: "characterLevel" },
         " Level: ",
         character.level,
@@ -140,6 +146,7 @@ var setup = function setup(csrf) {
       return { data: [] };
     },
     handleDelete: deleteCharacter,
+    handleUpdate: updateCharacter,
     componentDidMount: function componentDidMount() {
       this.loadCharactersFromServer();
     },

@@ -24,6 +24,12 @@ const deleteCharacter = function(e) {
   });
 };
 
+const updateCharacter = function(e) {
+  sendAjax('POST', '/updateCharacter', $("#characterForm").serialize() + '&id=' + e.target.id, function() {
+    characterRenderer.loadCharactersFromServer();
+  });
+};
+
 const renderCharacterPreview = function() {
   return (
     <form id="characterForm"
@@ -57,11 +63,11 @@ const renderCharacterList = function() {
 
   const characterNodes = this.state.data.map(function(character) {
     return (
-      <div key={character._id} className="character" onClick={this.handleDelete}>
+      <div key={character._id} className="character" id={character._id} onClick={this.handleUpdate}>
         <img src="/assets/img/domoface.jpeg" alt="domo face" className="domoFace" />
         <h3 className="characterName"> Name: {character.name} </h3>
-        <h2 className="characterSex"> Sex: {character.sex} </h2>
-        <h2 className="characterLevel"> Level: {character.level} </h2>
+        <h3 className="characterSex"> Sex: {character.sex} </h3>
+        <h3 className="characterLevel"> Level: {character.level} </h3>
         <button onClick={this.handleDelete} id={character._id}>Delete</button>
       </div>
     );
@@ -90,6 +96,7 @@ const setup = function(csrf) {
       return { data: [] };
     },
     handleDelete: deleteCharacter,
+    handleUpdate: updateCharacter,
     componentDidMount: function() {
       this.loadCharactersFromServer();
     },

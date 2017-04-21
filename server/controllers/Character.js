@@ -73,13 +73,27 @@ const deleteCharacter = (request, response) => {
   const req = request;
   const res = response;
 
-  Character.CharacterModel.remove({_id: req.body.id}, function(err) {
+  return Character.CharacterModel.deleteById(req.body.id, (err, docs) => {
     if (err) {
       console.log(err);
       return res.status(400).json({ error: 'An error occurred' });
-    } else {
-      return res.json({ redirect: '/characters' })
     }
+
+    return res.json({ characters: docs });
+  });
+};
+
+const updateCharacter = (request, response) => {
+  const req = request;
+  const res = response;
+
+  return Character.CharacterModel.updateById(req.body.id, {level: 10}, (err, docs) => {
+    if (err) {
+      console.log(err);
+      return res.status(400).json({ error: 'An error occurred' });
+    }
+
+    return res.json({ characters: docs });
   });
 };
 
@@ -88,3 +102,4 @@ module.exports.getCharacters = getCharacters;
 module.exports.getCharacter = getCharacter;
 module.exports.create = createCharacter;
 module.exports.deleteCharacter = deleteCharacter;
+module.exports.updateCharacter = updateCharacter;

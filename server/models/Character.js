@@ -46,6 +46,34 @@ CharacterSchema.statics.toAPI = (doc) => ({
   sex: doc.sex,
 });
 
+CharacterSchema.statics.deleteById = (charId, callback) => {
+  const id = {
+    _id : charId,
+  };
+
+  return CharacterModel.remove(id).exec(callback);
+};
+
+CharacterSchema.statics.findById = (charId, callback) => {
+  const id = {
+    _id : charId,
+  };
+
+  return CharacterModel.find(id).exec(callback);
+};
+
+CharacterSchema.statics.updateById = (charId, stat, callback) => {
+  const id = {
+    _id : charId,
+  };
+
+  const set = {
+    $set: stat,
+  };
+
+  return CharacterModel.update(id, set).exec(callback);
+};
+
 CharacterSchema.statics.findByOwner = (ownerId, callback) => {
   const search = {
     owner: convertId(ownerId),
