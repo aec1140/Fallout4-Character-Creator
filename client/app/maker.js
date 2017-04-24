@@ -24,10 +24,14 @@ const deleteCharacter = function(e) {
   });
 };
 
-const updateCharacter = function(e) {
-  sendAjax('POST', '/updateCharacter', $("#characterForm").serialize() + '&id=' + e.target.id, function() {
-    characterRenderer.loadCharactersFromServer();
-  });
+// const updateCharacter = function(e) {
+//   sendAjax('POST', '/updateCharacter', $("#characterForm").serialize() + '&id=' + e.target.id, function() {
+//     characterRenderer.loadCharactersFromServer();
+//   });
+// };
+
+const selectCharacter = function(e) {
+  sendAjax('GET', `/characters/${e.target.getAttribute('name')}`, $("#characterForm").serialize() + '&id=' + e.target.id, redirect);
 };
 
 const renderCharacterPreview = function() {
@@ -63,7 +67,7 @@ const renderCharacterList = function() {
 
   const characterNodes = this.state.data.map(function(character) {
     return (
-      <div key={character._id} className="character" id={character._id} onClick={this.handleUpdate}>
+      <div key={character._id} className="character" name={character.name} id={character._id} onClick={this.handleClick}>
         <img src="/assets/img/domoface.jpeg" alt="domo face" className="domoFace" />
         <h3 className="characterName"> Name: {character.name} </h3>
         <h3 className="characterSex"> Sex: {character.sex} </h3>
@@ -96,7 +100,7 @@ const setup = function(csrf) {
       return { data: [] };
     },
     handleDelete: deleteCharacter,
-    handleUpdate: updateCharacter,
+    handleClick: selectCharacter,
     componentDidMount: function() {
       this.loadCharactersFromServer();
     },

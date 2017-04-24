@@ -3,7 +3,7 @@ mongoose.Promise = global.Promise;
 
 let PerksModel = {};
 
-const Attribute: {
+const Attribute = {
   STR: 0,
   PER: 1,
   END: 2,

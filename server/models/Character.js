@@ -30,14 +30,12 @@ const CharacterSchema = new mongoose.Schema({
 
   special: {
     type: mongoose.Schema.ObjectId,
-    required: true,
     ref: 'Special',
   },
 
-  perks: {
+  perk: {
     type: mongoose.Schema.ObjectId,
-    required: true,
-    ref: 'Perks',
+    ref: 'Perk',
   },
 
   owner: {

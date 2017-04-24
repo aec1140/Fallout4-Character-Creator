@@ -1,5 +1,161 @@
 "use strict";
 
+var perkRenderer = void 0;
+var specialRenderer = void 0;
+var SpecialFormClass = void 0;
+var PerkListClass = void 0;
+
+// Used to handle submit on the special screen
+var handleSpecial = function handleSpecial(e) {
+  e.preventDefault();
+
+  sendAjax('POST', $("#specialForm").attr("action"), $("specialForm").serialize(), function () {
+    perkRenderer.loadPerksFromServer(); // THIS NEEDS TO BE CREATED
+  });
+
+  return false;
+};
+
+// Used to render SPECIAL Stat Input menu
+var renderSpecial = function renderSpecial() {
+  return React.createElement(
+    "form",
+    { id: "specialForm",
+      onChange: this.handleChange,
+      name: "specialForm",
+      action: "/updateCharacter",
+      method: "POST",
+      className: "specialForm"
+    },
+    React.createElement(
+      "table",
+      null,
+      React.createElement(
+        "tr",
+        null,
+        React.createElement(
+          "th",
+          null,
+          "Strength"
+        ),
+        React.createElement(
+          "td",
+          null,
+          React.createElement("input", { id: "strength", type: "number", name: "strength", min: "1", max: "10" })
+        )
+      ),
+      React.createElement(
+        "tr",
+        null,
+        React.createElement(
+          "th",
+          null,
+          "Perception"
+        ),
+        React.createElement(
+          "td",
+          null,
+          React.createElement("input", { id: "perception", type: "number", name: "perception", min: "1", max: "10" })
+        )
+      ),
+      React.createElement(
+        "tr",
+        null,
+        React.createElement(
+          "th",
+          null,
+          "Endurance"
+        ),
+        React.createElement(
+          "td",
+          null,
+          React.createElement("input", { id: "endurance", type: "number", name: "endurance", min: "1", max: "10" })
+        )
+      ),
+      React.createElement(
+        "tr",
+        null,
+        React.createElement(
+          "th",
+          null,
+          "Charisma"
+        ),
+        React.createElement(
+          "td",
+          null,
+          React.createElement("input", { id: "charisma", type: "number", name: "charisma", min: "1", max: "10" })
+        )
+      ),
+      React.createElement(
+        "tr",
+        null,
+        React.createElement(
+          "th",
+          null,
+          "Intelligence"
+        ),
+        React.createElement(
+          "td",
+          null,
+          React.createElement("input", { id: "intelligence", type: "number", name: "intelligence", min: "1", max: "10" })
+        )
+      ),
+      React.createElement(
+        "tr",
+        null,
+        React.createElement(
+          "th",
+          null,
+          "Agility"
+        ),
+        React.createElement(
+          "td",
+          null,
+          React.createElement("input", { id: "agility", type: "number", name: "agility", min: "1", max: "10" })
+        )
+      ),
+      React.createElement(
+        "tr",
+        null,
+        React.createElement(
+          "th",
+          null,
+          "Luck"
+        ),
+        React.createElement(
+          "td",
+          null,
+          React.createElement("input", { id: "luck", type: "number", name: "luck", min: "1", max: "10" })
+        )
+      )
+    ),
+    React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf })
+  );
+};
+
+// Setup function
+var setup = function setup(csrf) {
+  SpecialFormClass = React.createClass({
+    displayName: "SpecialFormClass",
+
+    handleChange: handleSpecial,
+    render: renderSpecial
+  });
+
+  specialForm = ReactDOM.render(React.createElement(SpecialFormClass, { csrf: csrf }), document.querySelector("#special"));
+};
+
+var getToken = function getToken() {
+  sendAjax('GET', '/getToken', null, function (result) {
+    setup(result.csrfToken);
+  });
+};
+
+$(document).ready(function () {
+  getToken();
+});
+"use strict";
+
 var characterRenderer = void 0; // Character Renderer Component
 var characterForm = void 0; // Character Add Form Render Component
 var CharacterFormClass = void 0; // Character Form React UI Class
@@ -26,10 +182,14 @@ var deleteCharacter = function deleteCharacter(e) {
   });
 };
 
-var updateCharacter = function updateCharacter(e) {
-  sendAjax('POST', '/updateCharacter', $("#characterForm").serialize() + '&id=' + e.target.id, function () {
-    characterRenderer.loadCharactersFromServer();
-  });
+// const updateCharacter = function(e) {
+//   sendAjax('POST', '/updateCharacter', $("#characterForm").serialize() + '&id=' + e.target.id, function() {
+//     characterRenderer.loadCharactersFromServer();
+//   });
+// };
+
+var selectCharacter = function selectCharacter(e) {
+  sendAjax('GET', "/characters/" + e.target.getAttribute('name'), $("#characterForm").serialize() + '&id=' + e.target.id, redirect);
 };
 
 var renderCharacterPreview = function renderCharacterPreview() {
@@ -88,7 +248,7 @@ var renderCharacterList = function renderCharacterList() {
   var characterNodes = this.state.data.map(function (character) {
     return React.createElement(
       "div",
-      { key: character._id, className: "character", id: character._id, onClick: this.handleUpdate },
+      { key: character._id, className: "character", name: character.name, id: character._id, onClick: this.handleClick },
       React.createElement("img", { src: "/assets/img/domoface.jpeg", alt: "domo face", className: "domoFace" }),
       React.createElement(
         "h3",
@@ -146,7 +306,7 @@ var setup = function setup(csrf) {
       return { data: [] };
     },
     handleDelete: deleteCharacter,
-    handleUpdate: updateCharacter,
+    handleClick: selectCharacter,
     componentDidMount: function componentDidMount() {
       this.loadCharactersFromServer();
     },

@@ -56,7 +56,7 @@ const SpecialSchema = new mongoose.Schema({
   },
 });
 
-CharacterSchema.statics.toAPI = (doc) => ({
+SpecialSchema.statics.toAPI = (doc) => ({
   strength: doc.strength,
   perception: doc.perception,
   endurance: doc.endurance,
