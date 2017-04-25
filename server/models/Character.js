@@ -12,14 +12,7 @@ const CharacterSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    unique: true,
     set: setName,
-  },
-
-  sex: {
-    type: String,
-    required: true,
-    trim: true,
   },
 
   level: {
@@ -28,14 +21,70 @@ const CharacterSchema = new mongoose.Schema({
     default: 1,
   },
 
-  special: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Special',
+  // SPECIAL STATS
+  strength: {
+    type: Number,
+    min: 1,
+    max: 10,
+    default: 1,
   },
 
-  perk: {
-    type: mongoose.Schema.ObjectId,
-    ref: 'Perk',
+  perception: {
+    type: Number,
+    min: 1,
+    max: 10,
+    default: 1,
+  },
+
+  endurance: {
+    type: Number,
+    min: 1,
+    max: 10,
+    default: 1,
+  },
+
+  charisma: {
+    type: Number,
+    min: 1,
+    max: 10,
+    default: 1,
+  },
+
+  intelligence: {
+    type: Number,
+    min: 1,
+    max: 10,
+    default: 1,
+  },
+
+  agility: {
+    type: Number,
+    min: 1,
+    max: 10,
+    default: 1,
+  },
+
+  luck: {
+    type: Number,
+    min: 1,
+    max: 10,
+    default: 1,
+  },
+
+  // Char Stats
+  hitPoints: {
+    type: Number,
+    default: 85,
+  },
+
+  actionPoints: {
+    type: Number,
+    default: 70,
+  },
+
+  carryWeight: {
+    type: Number,
+    default: 210,
   },
 
   owner: {
@@ -52,7 +101,6 @@ const CharacterSchema = new mongoose.Schema({
 
 CharacterSchema.statics.toAPI = (doc) => ({
   name: doc.name,
-  sex: doc.sex,
 });
 
 CharacterSchema.statics.deleteById = (charId, callback) => {
@@ -88,7 +136,7 @@ CharacterSchema.statics.findByOwner = (ownerId, callback) => {
     owner: convertId(ownerId),
   };
 
-  return CharacterModel.find(search).select('name sex level').exec(callback);
+  return CharacterModel.find(search).exec(callback);
 };
 
 CharacterSchema.statics.findByName = (name, callback) => {
@@ -96,7 +144,7 @@ CharacterSchema.statics.findByName = (name, callback) => {
     name: name,
   };
 
-  return CharacterModel.find(search).select('name sex level').exec(callback);
+  return CharacterModel.find(search).select('name carryWeight').exec(callback);
 };
 
 CharacterModel = mongoose.model('Character', CharacterSchema);
