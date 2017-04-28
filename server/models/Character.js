@@ -7,6 +7,8 @@ let CharacterModel = {};
 const convertId = mongoose.Types.ObjectId;
 const setName = (name) => _.escape(name).trim();
 
+// Main schema for characters
+// In the future the SPECIAL stats should be in it's own model / controller
 const CharacterSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -103,25 +105,28 @@ CharacterSchema.statics.toAPI = (doc) => ({
   name: doc.name,
 });
 
+// removes a character off the db
 CharacterSchema.statics.deleteById = (charId, callback) => {
   const id = {
-    _id : charId,
+    _id: charId,
   };
 
   return CharacterModel.remove(id).exec(callback);
 };
 
+// finds a character on the db
 CharacterSchema.statics.findById = (charId, callback) => {
   const id = {
-    _id : charId,
+    _id: charId,
   };
 
   return CharacterModel.find(id).exec(callback);
 };
 
+// updates a character by id and sets its stats
 CharacterSchema.statics.updateById = (charId, stat, callback) => {
   const id = {
-    _id : charId,
+    _id: charId,
   };
 
   const set = {
@@ -141,7 +146,7 @@ CharacterSchema.statics.findByOwner = (ownerId, callback) => {
 
 CharacterSchema.statics.findByName = (name, callback) => {
   const search = {
-    name: name,
+    name,
   };
 
   return CharacterModel.find(search).select('name carryWeight').exec(callback);

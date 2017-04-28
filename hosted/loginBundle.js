@@ -37,6 +37,28 @@ var handleSignup = function handleSignup(e) {
   return false;
 };
 
+var handleChangePassword = function handleChangePassword(e) {
+  e.preventDefault();
+
+  $("#characterMessage").animate({ width: 'hide' }, 350);
+
+  if ($("#pass").val() == '' || $("#newPass").val() == '' || $("#newPass2").val() == '') {
+    handleError("RAWR! Fill out all of the fields");
+    return false;
+  }
+
+  if ($("#newPass").val() !== $("#newPass2").val()) {
+    handleError("RAWR! Passwords do not match");
+    return false;
+  }
+
+  sendAjax('POST', $("#changePassForm").attr("action"), $("#changePassForm").serialize(), function () {
+    handleError("Password was changed!");
+  });
+
+  return false;
+};
+
 var renderLogin = function renderLogin() {
   return React.createElement(
     "form",
@@ -97,6 +119,45 @@ var renderSignup = function renderSignup() {
   );
 };
 
+var renderChangePassword = function renderChangePassword() {
+  return React.createElement(
+    "form",
+    { id: "changePassForm",
+      name: "changePassForm",
+      onSubmit: this.handleSubmit,
+      action: "/changePass",
+      method: "POST",
+      className: "mainForm"
+    },
+    React.createElement(
+      "label",
+      { htmlFor: "username" },
+      "Username: "
+    ),
+    React.createElement("input", { id: "user", type: "text", name: "username", placeholder: "username" }),
+    React.createElement(
+      "label",
+      { htmlFor: "pass" },
+      "Old Password: "
+    ),
+    React.createElement("input", { id: "pass", type: "password", name: "pass", placeholder: "old password" }),
+    React.createElement(
+      "label",
+      { htmlFor: "newPass" },
+      "New Password: "
+    ),
+    React.createElement("input", { id: "newPass", type: "password", name: "newPass", placeholder: "new password" }),
+    React.createElement(
+      "label",
+      { htmlFor: "newPass2" },
+      "New Password: "
+    ),
+    React.createElement("input", { id: "newPass2", type: "password", name: "newPass2", placeholder: "retype" }),
+    React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf }),
+    React.createElement("input", { className: "formSubmit", type: "submit", value: "Change" })
+  );
+};
+
 var createLoginWindow = function createLoginWindow(csrf) {
   var LoginWindow = React.createClass({
     displayName: "LoginWindow",
@@ -119,8 +180,20 @@ var createSignupWindow = function createSignupWindow(csrf) {
   ReactDOM.render(React.createElement(SignupWindow, { csrf: csrf }), document.querySelector("#content"));
 };
 
+var createChangePasswordWindow = function createChangePasswordWindow(csrf) {
+  var ChangePasswordWindow = React.createClass({
+    displayName: "ChangePasswordWindow",
+
+    handleSubmit: handleChangePassword,
+    render: renderChangePassword
+  });
+
+  ReactDOM.render(React.createElement(ChangePasswordWindow, { csrf: csrf }), document.querySelector("#content"));
+};
+
 var setup = function setup(csrf) {
   var loginButton = document.querySelector("#loginButton");
+  var changePassButton = document.querySelector("#changePassButton");
   var signupButton = document.querySelector("#signupButton");
 
   signupButton.addEventListener("click", function (e) {
@@ -132,6 +205,12 @@ var setup = function setup(csrf) {
   loginButton.addEventListener("click", function (e) {
     e.preventDefault();
     createLoginWindow(csrf);
+    return false;
+  });
+
+  changePassButton.addEventListener("click", function (e) {
+    e.preventDefault();
+    createChangePasswordWindow(csrf);
     return false;
   });
 

@@ -1,9 +1,11 @@
 "use strict";
 
-var characterRenderer = void 0; // Character Renderer Component
+var characterListRenderer = void 0; // Character List Renderer Component
 var characterForm = void 0; // Character Add Form Render Component
+var characterRenderer = void 0; // Character Renderer Component
 var CharacterFormClass = void 0; // Character Form React UI Class
 var CharacterListClass = void 0; // Character List React UI Class
+var CharacterClass = void 0; // Character React UI Class
 
 var handleCharacter = function handleCharacter(e) {
   e.preventDefault();
@@ -14,8 +16,29 @@ var handleCharacter = function handleCharacter(e) {
     return false;
   }
   sendAjax('POST', $("#characterForm").attr("action"), $("#characterForm").serialize(), function () {
-    characterRenderer.loadCharactersFromServer();
+    characterListRenderer.loadCharactersFromServer();
   });
+
+  return false;
+};
+
+var selectCharacter = function selectCharacter(e) {
+  e.preventDefault();
+
+  var id = null;
+
+  var children = e.target.childNodes;
+
+  for (var i = 0; i < children.length; ++i) {
+    if (children[i].className == "_id") {
+      id = children[i].value;
+      break;
+    }
+  }
+
+  if (id != null) {
+    characterRenderer.loadCharacterFromServer($("#characterForm").serialize() + ("&_id=" + id));
+  }
 
   return false;
 };
@@ -23,14 +46,26 @@ var handleCharacter = function handleCharacter(e) {
 var deleteCharacter = function deleteCharacter(e) {
   if (!confirm("Do you want to delete " + e.target.name + "?")) return;
 
-  sendAjax('POST', '/deleteCharacter', $("#specialForm").serialize(), function () {
-    characterRenderer.loadCharactersFromServer();
+  var id = null;
+
+  var parent = e.target.parentElement;
+  var children = parent.childNodes;
+
+  for (var i = 0; i < children.length; ++i) {
+    if (children[i].className == "_id") {
+      id = children[i].value;
+      break;
+    }
+  }
+
+  sendAjax('POST', '/deleteCharacter', $("#characterForm").serialize() + ("&_id=" + id), function () {
+    characterListRenderer.loadCharactersFromServer();
   });
 };
 
 var updateCharacter = function updateCharacter(e) {
   sendAjax('POST', '/updateCharacter', $("#specialForm").serialize(), function () {
-    characterRenderer.loadCharactersFromServer();
+    characterRenderer.loadCharacterFromServer($("#specialForm").serialize());
   });
 };
 
@@ -55,77 +90,70 @@ var renderCharacterPreview = function renderCharacterPreview() {
   );
 };
 
-var renderCharacterList = function renderCharacterList() {
+var renderCharacter = function renderCharacter() {
+
   if (this.state.data.length === 0) {
-    return React.createElement(
-      "div",
-      { className: "characterList" },
-      React.createElement(
-        "h3",
-        { className: "emptyCharacter" },
-        "No Characters yet"
-      )
-    );
+    return null;
   }
 
-  var characterNodes = this.state.data.map(function (character) {
-    var maxPoints = 28;
-    var totalPoints = character.strength + character.perception + character.endurance + character.charisma + character.intelligence + character.agility + character.luck;
-    var remainingPoints = maxPoints - totalPoints;
-    return React.createElement(
+  var character = this.state.data[0];
+
+  var maxPoints = 28;
+  var totalPoints = character.strength + character.perception + character.endurance + character.charisma + character.intelligence + character.agility + character.luck;
+  var remainingPoints = maxPoints - totalPoints;
+
+  return React.createElement(
+    "div",
+    { className: "character", name: character.name, id: character.name },
+    React.createElement("img", { src: "/assets/img/character.png", alt: "char face", className: "charFace" }),
+    React.createElement(
+      "h3",
+      { className: "characterName" },
+      " Name: ",
+      character.name,
+      " "
+    ),
+    React.createElement(
+      "h3",
+      { className: "characterLevel" },
+      " Level: ",
+      character.level,
+      " "
+    ),
+    React.createElement(
       "div",
-      { key: character._id, className: "character", name: character.name, id: character.name },
-      React.createElement("img", { src: "/assets/img/domoface.jpeg", alt: "domo face", className: "domoFace" }),
+      { className: "characterSpecial" },
       React.createElement(
-        "button",
-        { onClick: this.handleDelete, name: character.name, className: "deleteButton" },
-        "X"
-      ),
-      React.createElement(
-        "h3",
-        { className: "characterName" },
-        " Name: ",
-        character.name,
-        " "
-      ),
-      React.createElement(
-        "h3",
-        { className: "characterLevel" },
-        " Level: ",
-        character.level,
-        " "
-      ),
-      React.createElement(
-        "div",
+        "h4",
         { className: "characterSpecial" },
+        " Special: "
+      ),
+      React.createElement(
+        "h5",
+        null,
+        "Special - ",
         React.createElement(
-          "h4",
-          { className: "characterSpecial" },
-          " Special: "
-        ),
-        React.createElement(
-          "h5",
+          "i",
           null,
-          "Special - ",
-          React.createElement(
-            "i",
-            null,
-            "Points Remaining: ",
-            remainingPoints
-          )
-        ),
+          "Points Remaining: ",
+          remainingPoints
+        )
+      ),
+      React.createElement(
+        "form",
+        { id: "specialForm",
+          onChange: this.handleChange,
+          name: "specialForm",
+          action: "/updateCharacter",
+          method: "POST",
+          className: "specialForm"
+        },
         React.createElement(
-          "form",
-          { id: "specialForm",
-            onChange: this.handleChange,
-            name: "specialForm",
-            action: "/updateCharacter",
-            method: "POST",
-            className: "specialForm"
-          },
+          "table",
+          { className: "specialStats" },
           React.createElement(
-            "table",
-            { className: "specialStats" },
+            "tbody",
+            null,
             React.createElement(
               "tr",
               null,
@@ -224,10 +252,14 @@ var renderCharacterList = function renderCharacterList() {
                 React.createElement("input", { id: "luck", type: "number", name: "luck", min: "1", max: "10", value: character.luck })
               )
             )
-          ),
+          )
+        ),
+        React.createElement(
+          "table",
+          { className: "playerStats" },
           React.createElement(
-            "table",
-            { className: "playerStats" },
+            "tbody",
+            null,
             React.createElement(
               "tr",
               null,
@@ -266,13 +298,58 @@ var renderCharacterList = function renderCharacterList() {
                 character.carryWeight
               )
             )
-          ),
-          React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf }),
-          React.createElement("input", { type: "hidden", name: "_id", value: character._id }),
-          React.createElement("input", { type: "hidden", name: "remainingPoints", value: remainingPoints }),
-          React.createElement("input", { type: "hidden", name: "name", value: character.name })
-        )
+          )
+        ),
+        React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf }),
+        React.createElement("input", { type: "hidden", name: "_id", value: character._id }),
+        React.createElement("input", { type: "hidden", name: "remainingPoints", value: remainingPoints }),
+        React.createElement("input", { type: "hidden", name: "name", value: character.name })
       )
+    )
+  );
+};
+
+var renderCharacterList = function renderCharacterList() {
+  if (this.state.data.length === 0) {
+    return React.createElement(
+      "div",
+      { className: "characterList" },
+      React.createElement(
+        "h3",
+        { className: "emptyCharacter" },
+        "No Characters yet"
+      )
+    );
+  }
+
+  var characterNodes = this.state.data.map(function (character) {
+    var maxPoints = 28;
+    var totalPoints = character.strength + character.perception + character.endurance + character.charisma + character.intelligence + character.agility + character.luck;
+    var remainingPoints = maxPoints - totalPoints;
+    return React.createElement(
+      "div",
+      { key: character._id, className: "character", name: character.name, id: character.name, onClick: this.handleClick },
+      React.createElement("img", { src: "/assets/img/character.png", alt: "char face", className: "charFace" }),
+      React.createElement(
+        "button",
+        { onClick: this.handleDelete, name: character.name, className: "deleteButton" },
+        "X"
+      ),
+      React.createElement(
+        "h3",
+        { className: "characterName" },
+        " Name: ",
+        character.name,
+        " "
+      ),
+      React.createElement(
+        "h3",
+        { className: "characterLevel" },
+        " Level: ",
+        character.level,
+        " "
+      ),
+      React.createElement("input", { type: "hidden", id: "_id", name: "_id", className: "_id", value: character._id })
     );
   }.bind(this));
 
@@ -303,16 +380,33 @@ var setup = function setup(csrf) {
       return { data: [] };
     },
     handleDelete: deleteCharacter,
-    handleChange: updateCharacter,
+    handleClick: selectCharacter,
     componentDidMount: function componentDidMount() {
       this.loadCharactersFromServer();
     },
     render: renderCharacterList
   });
 
+  CharacterClass = React.createClass({
+    displayName: "CharacterClass",
+
+    loadCharacterFromServer: function loadCharacterFromServer(param) {
+      sendAjax('POST', '/getCharacter', param, function (data) {
+        this.setState({ data: data.character });
+      }.bind(this));
+    },
+    getInitialState: function getInitialState() {
+      return { data: [] };
+    },
+    handleChange: updateCharacter,
+    render: renderCharacter
+  });
+
   characterForm = ReactDOM.render(React.createElement(CharacterFormClass, { csrf: csrf }), document.querySelector("#makeCharacter"));
 
-  characterRenderer = ReactDOM.render(React.createElement(CharacterListClass, { csrf: csrf }), document.querySelector("#characters"));
+  characterListRenderer = ReactDOM.render(React.createElement(CharacterListClass, { csrf: csrf }), document.querySelector("#characters"));
+
+  characterRenderer = ReactDOM.render(React.createElement(CharacterClass, { csrf: csrf }), document.querySelector("#selectedCharacter"));
 };
 
 var getToken = function getToken() {

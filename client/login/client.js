@@ -35,6 +35,28 @@ const handleSignup = (e) => {
   return false;
 };
 
+const handleChangePassword = (e) => {
+  e.preventDefault();
+
+  $("#characterMessage").animate({width:'hide'},350);
+
+  if ($("#pass").val() == '' || $("#newPass").val() == '' || $("#newPass2").val() == '') {
+      handleError("RAWR! Fill out all of the fields");
+      return false;
+  }
+
+  if ($("#newPass").val() !== $("#newPass2").val()) {
+      handleError("RAWR! Passwords do not match");
+      return false;
+  }
+
+  sendAjax('POST', $("#changePassForm").attr("action"), $("#changePassForm").serialize(), function() {
+    handleError("Password was changed!")
+  });
+
+  return false;
+};
+
 const renderLogin = function() {
   return (
   <form id="loginForm"
@@ -75,6 +97,29 @@ const renderSignup = function() {
   );
 };
 
+const renderChangePassword = function() {
+  return (
+  <form id="changePassForm"
+      name="changePassForm"
+      onSubmit={this.handleSubmit}
+      action="/changePass"
+      method="POST"
+      className="mainForm"
+  >
+    <label htmlFor="username">Username: </label>
+    <input id="user" type="text" name="username" placeholder="username"/>
+    <label htmlFor="pass">Old Password: </label>
+    <input id="pass" type="password" name="pass" placeholder="old password"/>
+    <label htmlFor="newPass">New Password: </label>
+    <input id="newPass" type="password" name="newPass" placeholder="new password"/>
+    <label htmlFor="newPass2">New Password: </label>
+    <input id="newPass2" type="password" name="newPass2" placeholder="retype"/>
+    <input type="hidden" name="_csrf" value={this.props.csrf} />
+    <input className="formSubmit" type="submit" value="Change" />
+  </form>
+  );
+};
+
 const createLoginWindow = function(csrf) {
   const LoginWindow = React.createClass({
     handleSubmit: handleLogin,
@@ -99,8 +144,21 @@ const createSignupWindow = function (csrf) {
   );
 };
 
+const createChangePasswordWindow = function (csrf) {
+  const ChangePasswordWindow = React.createClass({
+    handleSubmit: handleChangePassword,
+    render: renderChangePassword
+  });
+
+  ReactDOM.render(
+    <ChangePasswordWindow csrf={csrf} />,
+    document.querySelector("#content")
+  );
+}
+
 const setup = function(csrf) {
   const loginButton = document.querySelector("#loginButton");
+  const changePassButton = document.querySelector("#changePassButton");
   const signupButton = document.querySelector("#signupButton");
 
   signupButton.addEventListener("click", (e) => {
@@ -112,6 +170,12 @@ const setup = function(csrf) {
   loginButton.addEventListener("click", (e) => {
     e.preventDefault();
     createLoginWindow(csrf);
+    return false;
+  });
+
+  changePassButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    createChangePasswordWindow(csrf);
     return false;
   });
 

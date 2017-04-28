@@ -63,6 +63,22 @@ AccountSchema.statics.generateHash = (password, callback) => {
   );
 };
 
+AccountSchema.statics.updateById = (username, data, callback) => {
+  const id = {};
+
+  const set = {
+    $set: data,
+  };
+
+  AccountModel.findByUsername(username, (err, doc) => {
+    if (err) {
+      return callback(err);
+    }
+    id._id = doc._id;
+    return AccountModel.update(id, set).exec(callback);
+  });
+};
+
 AccountSchema.statics.authenticate = (username, password, callback) =>
 AccountModel.findByUsername(username, (err, doc) => {
   if (err) {

@@ -79,6 +79,39 @@ const signup = (request, response) => {
   });
 };
 
+const changePass = (request, response) => {
+  const req = request;
+  const res = response;
+
+  // cast to strings to cover up security flaws
+  req.body.pass = `${req.body.pass}`;
+  req.body.newPass = `${req.body.newPass}`;
+  req.body.newPass2 = `${req.body.newPass2}`;
+
+  if (!req.body.pass || !req.body.newPass || !req.body.newPass2) {
+    return res.status(400).json({ error: 'RAWR! ALL FIELDS ARE REQUIRED!' });
+  }
+
+  if (req.body.newPass !== req.body.newPass2) {
+    return res.status(400).json({ error: 'RAWR! PASSWORDS DO NOT MATCH' });
+  }
+
+  return Account.AccountModel.generateHash(req.body.newPass, (salt, hash) => {
+    const accountData = {
+      salt,
+      password: hash,
+    };
+
+    return Account.AccountModel.updateById(req.body.username, accountData, (err) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json({ error: 'An error occurred' });
+      }
+      return res.status(200).json({ error: 'Password was successfully changed' });
+    });
+  });
+};
+
 const getToken = (request, response) => {
   const req = request;
   const res = response;
@@ -94,4 +127,5 @@ module.exports.loginPage = loginPage;
 module.exports.login = login;
 module.exports.logout = logout;
 module.exports.signup = signup;
+module.exports.changePass = changePass;
 module.exports.getToken = getToken;
