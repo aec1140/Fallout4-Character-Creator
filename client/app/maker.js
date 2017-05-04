@@ -92,15 +92,18 @@ const renderCharacterPreview = function() {
 // renderer for selected character
 const renderCharacter = function() {
 
-  if (this.state.data.length === 0) {
+  if (this.state.data.character === undefined || this.state.data.special === undefined) {
     return null;
   }
 
-  let character = this.state.data[0];
+  console.dir(this.state.data);
+
+  let character = this.state.data.character[0];
+  let special = this.state.data.special[0];
 
   const maxPoints = 28;
-  const totalPoints = character.strength + character.perception + character.endurance +
-                      character.charisma + character.intelligence + character.agility + character.luck;
+  const totalPoints = special.strength + special.perception + special.endurance +
+                      special.charisma + special.intelligence + special.agility + special.luck;
   const remainingPoints = maxPoints - totalPoints;
 
   return (
@@ -123,43 +126,43 @@ const renderCharacter = function() {
               <tr>
                 <th>Strength</th>
                 <td>
-                  <input id="strength" type="number" name="strength" min="1" max="10" value={character.strength} />
+                  <input id="strength" type="number" name="strength" min="1" max="10" value={special.strength} />
                 </td>
               </tr>
               <tr>
                 <th>Perception</th>
                 <td>
-                  <input id="perception" type="number" name="perception" min="1" max="10" value={character.perception} />
+                  <input id="perception" type="number" name="perception" min="1" max="10" value={special.perception} />
                 </td>
               </tr>
               <tr>
                 <th>Endurance</th>
                 <td>
-                  <input id="endurance" type="number" name="endurance" min="1" max="10" value={character.endurance} />
+                  <input id="endurance" type="number" name="endurance" min="1" max="10" value={special.endurance} />
                 </td>
               </tr>
               <tr>
                 <th>Charisma</th>
                 <td>
-                  <input id="charisma" type="number" name="charisma" min="1" max="10" value={character.charisma} />
+                  <input id="charisma" type="number" name="charisma" min="1" max="10" value={special.charisma} />
                 </td>
               </tr>
               <tr>
                 <th>Intelligence</th>
                 <td>
-                  <input id="intelligence" type="number" name="intelligence" min="1" max="10" value={character.intelligence} />
+                  <input id="intelligence" type="number" name="intelligence" min="1" max="10" value={special.intelligence} />
                 </td>
               </tr>
               <tr>
                 <th>Agility</th>
                 <td>
-                  <input id="agility" type="number" name="agility" min="1" max="10" value={character.agility} />
+                  <input id="agility" type="number" name="agility" min="1" max="10" value={special.agility} />
                 </td>
               </tr>
               <tr>
                 <th>Luck</th>
                 <td>
-                  <input id="luck" type="number" name="luck" min="1" max="10" value={character.luck} />
+                  <input id="luck" type="number" name="luck" min="1" max="10" value={special.luck} />
                 </td>
               </tr>
             </tbody>

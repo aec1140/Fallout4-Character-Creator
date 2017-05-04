@@ -7,6 +7,7 @@ var CharacterFormClass = void 0; // Character Form React UI Class
 var CharacterListClass = void 0; // Character List React UI Class
 var CharacterClass = void 0; // Character React UI Class
 
+// handles the submit of a new character and loads them
 var handleCharacter = function handleCharacter(e) {
   e.preventDefault();
 
@@ -22,6 +23,7 @@ var handleCharacter = function handleCharacter(e) {
   return false;
 };
 
+// handles onclick events and loads a character when selected
 var selectCharacter = function selectCharacter(e) {
   e.preventDefault();
 
@@ -43,6 +45,7 @@ var selectCharacter = function selectCharacter(e) {
   return false;
 };
 
+// deletes a character from the server
 var deleteCharacter = function deleteCharacter(e) {
   if (!confirm("Do you want to delete " + e.target.name + "?")) return;
 
@@ -63,12 +66,14 @@ var deleteCharacter = function deleteCharacter(e) {
   });
 };
 
+// handles onchange events when the character is seleceted
 var updateCharacter = function updateCharacter(e) {
   sendAjax('POST', '/updateCharacter', $("#specialForm").serialize(), function () {
     characterRenderer.loadCharacterFromServer($("#specialForm").serialize());
   });
 };
 
+// renderer for character creator
 var renderCharacterPreview = function renderCharacterPreview() {
   return React.createElement(
     "form",
@@ -90,16 +95,20 @@ var renderCharacterPreview = function renderCharacterPreview() {
   );
 };
 
+// renderer for selected character
 var renderCharacter = function renderCharacter() {
 
-  if (this.state.data.length === 0) {
+  if (this.state.data.character === undefined || this.state.data.special === undefined) {
     return null;
   }
 
-  var character = this.state.data[0];
+  console.dir(this.state.data);
+
+  var character = this.state.data.character[0];
+  var special = this.state.data.special[0];
 
   var maxPoints = 28;
-  var totalPoints = character.strength + character.perception + character.endurance + character.charisma + character.intelligence + character.agility + character.luck;
+  var totalPoints = special.strength + special.perception + special.endurance + special.charisma + special.intelligence + special.agility + special.luck;
   var remainingPoints = maxPoints - totalPoints;
 
   return React.createElement(
@@ -165,7 +174,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "strength", type: "number", name: "strength", min: "1", max: "10", value: character.strength })
+                React.createElement("input", { id: "strength", type: "number", name: "strength", min: "1", max: "10", value: special.strength })
               )
             ),
             React.createElement(
@@ -179,7 +188,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "perception", type: "number", name: "perception", min: "1", max: "10", value: character.perception })
+                React.createElement("input", { id: "perception", type: "number", name: "perception", min: "1", max: "10", value: special.perception })
               )
             ),
             React.createElement(
@@ -193,7 +202,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "endurance", type: "number", name: "endurance", min: "1", max: "10", value: character.endurance })
+                React.createElement("input", { id: "endurance", type: "number", name: "endurance", min: "1", max: "10", value: special.endurance })
               )
             ),
             React.createElement(
@@ -207,7 +216,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "charisma", type: "number", name: "charisma", min: "1", max: "10", value: character.charisma })
+                React.createElement("input", { id: "charisma", type: "number", name: "charisma", min: "1", max: "10", value: special.charisma })
               )
             ),
             React.createElement(
@@ -221,7 +230,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "intelligence", type: "number", name: "intelligence", min: "1", max: "10", value: character.intelligence })
+                React.createElement("input", { id: "intelligence", type: "number", name: "intelligence", min: "1", max: "10", value: special.intelligence })
               )
             ),
             React.createElement(
@@ -235,7 +244,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "agility", type: "number", name: "agility", min: "1", max: "10", value: character.agility })
+                React.createElement("input", { id: "agility", type: "number", name: "agility", min: "1", max: "10", value: special.agility })
               )
             ),
             React.createElement(
@@ -249,7 +258,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "luck", type: "number", name: "luck", min: "1", max: "10", value: character.luck })
+                React.createElement("input", { id: "luck", type: "number", name: "luck", min: "1", max: "10", value: special.luck })
               )
             )
           )
@@ -309,6 +318,7 @@ var renderCharacter = function renderCharacter() {
   );
 };
 
+// renderer for character list
 var renderCharacterList = function renderCharacterList() {
   if (this.state.data.length === 0) {
     return React.createElement(

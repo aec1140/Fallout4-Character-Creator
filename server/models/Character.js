@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Special = require('./Special.js');
+
 mongoose.Promise = global.Promise;
 const _ = require('underscore');
 
@@ -20,56 +22,6 @@ const CharacterSchema = new mongoose.Schema({
   level: {
     type: Number,
     min: 1,
-    default: 1,
-  },
-
-  // SPECIAL STATS
-  strength: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  perception: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  endurance: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  charisma: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  intelligence: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  agility: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  luck: {
-    type: Number,
-    min: 1,
-    max: 10,
     default: 1,
   },
 
@@ -133,7 +85,7 @@ CharacterSchema.statics.updateById = (charId, stat, callback) => {
     $set: stat,
   };
 
-  return CharacterModel.update(id, set).exec(callback);
+  return Special.SpecialModel.update(id, set).exec(callback);
 };
 
 CharacterSchema.statics.findByOwner = (ownerId, callback) => {
