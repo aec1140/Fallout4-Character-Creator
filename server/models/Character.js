@@ -85,7 +85,7 @@ CharacterSchema.statics.updateById = (charId, stat, callback) => {
     $set: stat,
   };
 
-  return Special.SpecialModel.update(id, set).exec(callback);
+  return CharacterModel.update(id, set).exec(callback);
 };
 
 CharacterSchema.statics.findByOwner = (ownerId, callback) => {

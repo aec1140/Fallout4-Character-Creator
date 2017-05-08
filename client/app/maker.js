@@ -96,8 +96,6 @@ const renderCharacter = function() {
     return null;
   }
 
-  console.dir(this.state.data);
-
   let character = this.state.data.character[0];
   let special = this.state.data.special[0];
 

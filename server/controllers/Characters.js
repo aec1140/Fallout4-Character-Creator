@@ -67,6 +67,7 @@ const getCharacter = (request, response) => {
         character: char,
         special: special,
       };
+
       return res.json({ character: data });
     });
   });
@@ -92,13 +93,25 @@ const deleteCharacter = (request, response) => {
   const req = request;
   const res = response;
 
-  return Character.CharacterModel.deleteById(req.body._id, (err, docs) => {
+  return Character.CharacterModel.deleteById(req.body._id, (err, char) => {
     if (err) {
       console.log(err);
       return res.status(400).json({ error: 'An error occurred' });
     }
 
-    return res.json({ characters: docs });
+    return Special.SpecialModel.deleteById(req.body._id, (err, special) => {
+      if (err) {
+        console.log(err);
+        return res.status(400).json({ error: 'An error occurred' });
+      }
+
+      const data = {
+        character: char,
+        special: special,
+      };
+
+      return res.json({ characters: data });
+    });
   });
 };
 
@@ -139,7 +152,6 @@ const updateCharacter = (request, response) => {
       console.log(err);
       return res.status(400).json({ error: 'An error occurred' });
     }
-
     return Special.SpecialModel.updateById(req.body._id, specialData, (err, special) => {
       if (err) {
         console.log(err);

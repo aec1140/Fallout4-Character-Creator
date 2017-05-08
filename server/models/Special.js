@@ -63,12 +63,26 @@ const SpecialSchema = new mongoose.Schema({
 
 // finds a character on the db
 SpecialSchema.statics.findById = (specialId, callback) => {
-  console.log(specialId);
   const id = {
     _id: specialId,
   };
 
   return SpecialModel.find(id).exec(callback);
+};
+
+// removes a character off the db
+SpecialSchema.statics.deleteById = (charId, callback) => {
+  const id = {
+    _id: charId,
+  };
+
+  SpecialModel.findByCharacter(charId, (err, doc) => {
+    if (err) {
+      return callback(err);
+    }
+    id._id = convertId(doc[0]._doc._id);
+    return SpecialModel.remove(id).exec(callback);
+  });
 };
 
 SpecialSchema.statics.findByCharacter = (charId, callback) => {
