@@ -37,15 +37,17 @@ const createCharacter = (req, res) => {
   for (let i = 1; i <= 229; ++i) {
     let perkData = value[i];
 
-    const perk = new Perk.PerkModel({
-      name: perkData.name,
-      rank: perkData.rank,
-      attributeName: perkData.attribute,
-      attributeRank: perkData.attributeLevel,
-      requiredLevel: perkData.characterLevel,
-      description: perkData.description,
-    });
-    perks.push(perk);
+    if (perkData.requiredLeve == 0) {
+      const perk = new Perk.PerkModel({
+        name: perkData.name,
+        rank: perkData.rank,
+        attributeName: perkData.attribute,
+        attributeRank: perkData.attributeLevel,
+        requiredLevel: perkData.characterLevel,
+        description: perkData.description,
+      });
+      perks.push(perk);
+    }
   }
 
   newCharacter.save(function (err) {

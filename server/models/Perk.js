@@ -13,7 +13,7 @@ const PerkSchema = new mongoose.Schema({
   },
   rank: {
     type: Number,
-    min: 0,
+    min: 1,
     required: true,
   },
   attributeName: {
