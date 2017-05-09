@@ -3,16 +3,6 @@ mongoose.Promise = global.Promise;
 
 let PerkModel = {};
 
-const Attribute = {
-  STR: 0,
-  PER: 1,
-  END: 2,
-  CHA: 3,
-  INT: 4,
-  AGI: 5,
-  LCK: 6,
-};
-
 const convertId = mongoose.Types.ObjectId;
 
 const PerkSchema = new mongoose.Schema({
@@ -27,8 +17,9 @@ const PerkSchema = new mongoose.Schema({
     required: true,
   },
   attributeName: {
-    type: Attribute,
+    type: String,
     required: true,
+    trim: true,
   },
   attributeRank: {
     type: Number,
@@ -49,7 +40,12 @@ const PerkSchema = new mongoose.Schema({
 });
 
 PerkSchema.statics.toAPI = (doc) => ({
-  perk: doc.perk,
+  name: doc.name,
+  rank: doc.rank,
+  attributeName: doc.attributeName,
+  attributeRank: doc.attributeRank,
+  requiredLevel: doc.requiredLevel,
+  description: doc.description,
 });
 
 PerkModel = mongoose.model('Perk', PerkSchema);

@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Perk = require('./Perk.js');
+
 mongoose.Promise = global.Promise;
 
 let SpecialModel = {};
@@ -59,6 +61,8 @@ const SpecialSchema = new mongoose.Schema({
     max: 10,
     default: 1,
   },
+
+  perks: [Perk.PerkSchema],
 });
 
 // finds a character on the db

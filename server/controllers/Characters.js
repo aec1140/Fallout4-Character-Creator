@@ -1,7 +1,10 @@
 const models = require('../models');
+const stat = require('./perks.json')
 
 const Character = models.Character;
 const Special = models.Special;
+const Perk = models.Perk;
+
 
 // character page creator
 const charactersPage = (req, res) => {
@@ -27,6 +30,24 @@ const createCharacter = (req, res) => {
 
   const newCharacter = new Character.CharacterModel(characterData);
 
+  // New Character Perks
+  let value = stat.perks;
+  let perks = [];
+
+  for (let i = 1; i <= 229; ++i) {
+    let perkData = value[i];
+
+    const perk = new Perk.PerkModel({
+      name: perkData.name,
+      rank: perkData.rank,
+      attributeName: perkData.attribute,
+      attributeRank: perkData.attributeLevel,
+      requiredLevel: perkData.characterLevel,
+      description: perkData.description,
+    });
+    perks.push(perk);
+  }
+
   newCharacter.save(function (err) {
     if (err) {
       console.log(err);
@@ -35,6 +56,7 @@ const createCharacter = (req, res) => {
 
     const specialStats = new Special.SpecialModel({
       character: newCharacter._id,
+      perks: perks,
     });
 
     specialStats.save(function (err) {
