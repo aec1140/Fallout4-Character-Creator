@@ -1,12 +1,11 @@
 "use strict";
 
 var characterListRenderer = void 0; // Character List Renderer Component
-var characterForm = void 0; // Character Add Form Render Component
 var characterRenderer = void 0; // Character Renderer Component
-var CharacterFormClass = void 0; // Character Form React UI Class
 var CharacterListClass = void 0; // Character List React UI Class
 var CharacterClass = void 0; // Character React UI Class
 
+// handles the submit of a new character and loads them
 var handleCharacter = function handleCharacter(e) {
   e.preventDefault();
 
@@ -22,10 +21,14 @@ var handleCharacter = function handleCharacter(e) {
   return false;
 };
 
+var handleAds = function handleAds(e) {};
+
+// handles onclick events and loads a character when selected
 var selectCharacter = function selectCharacter(e) {
   e.preventDefault();
 
   var id = null;
+  var csrf = document.getElementById("_csrf");
 
   var children = e.target.childNodes;
 
@@ -43,6 +46,7 @@ var selectCharacter = function selectCharacter(e) {
   return false;
 };
 
+// deletes a character from the server
 var deleteCharacter = function deleteCharacter(e) {
   if (!confirm("Do you want to delete " + e.target.name + "?")) return;
 
@@ -63,12 +67,14 @@ var deleteCharacter = function deleteCharacter(e) {
   });
 };
 
+// handles onchange events when the character is seleceted
 var updateCharacter = function updateCharacter(e) {
   sendAjax('POST', '/updateCharacter', $("#specialForm").serialize(), function () {
     characterRenderer.loadCharacterFromServer($("#specialForm").serialize());
   });
 };
 
+// renderer for character maker
 var renderCharacterPreview = function renderCharacterPreview() {
   return React.createElement(
     "form",
@@ -90,16 +96,18 @@ var renderCharacterPreview = function renderCharacterPreview() {
   );
 };
 
+// renderer for selected character
 var renderCharacter = function renderCharacter() {
 
-  if (this.state.data.length === 0) {
+  if (this.state.data.character === undefined || this.state.data.special === undefined) {
     return null;
   }
 
-  var character = this.state.data[0];
+  var character = this.state.data.character[0];
+  var special = this.state.data.special[0];
 
   var maxPoints = 28;
-  var totalPoints = character.strength + character.perception + character.endurance + character.charisma + character.intelligence + character.agility + character.luck;
+  var totalPoints = special.strength + special.perception + special.endurance + special.charisma + special.intelligence + special.agility + special.luck;
   var remainingPoints = maxPoints - totalPoints;
 
   return React.createElement(
@@ -165,7 +173,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "strength", type: "number", name: "strength", min: "1", max: "10", value: character.strength })
+                React.createElement("input", { id: "strength", type: "number", name: "strength", min: "1", max: "10", value: special.strength })
               )
             ),
             React.createElement(
@@ -179,7 +187,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "perception", type: "number", name: "perception", min: "1", max: "10", value: character.perception })
+                React.createElement("input", { id: "perception", type: "number", name: "perception", min: "1", max: "10", value: special.perception })
               )
             ),
             React.createElement(
@@ -193,7 +201,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "endurance", type: "number", name: "endurance", min: "1", max: "10", value: character.endurance })
+                React.createElement("input", { id: "endurance", type: "number", name: "endurance", min: "1", max: "10", value: special.endurance })
               )
             ),
             React.createElement(
@@ -207,7 +215,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "charisma", type: "number", name: "charisma", min: "1", max: "10", value: character.charisma })
+                React.createElement("input", { id: "charisma", type: "number", name: "charisma", min: "1", max: "10", value: special.charisma })
               )
             ),
             React.createElement(
@@ -221,7 +229,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "intelligence", type: "number", name: "intelligence", min: "1", max: "10", value: character.intelligence })
+                React.createElement("input", { id: "intelligence", type: "number", name: "intelligence", min: "1", max: "10", value: special.intelligence })
               )
             ),
             React.createElement(
@@ -235,7 +243,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "agility", type: "number", name: "agility", min: "1", max: "10", value: character.agility })
+                React.createElement("input", { id: "agility", type: "number", name: "agility", min: "1", max: "10", value: special.agility })
               )
             ),
             React.createElement(
@@ -249,7 +257,7 @@ var renderCharacter = function renderCharacter() {
               React.createElement(
                 "td",
                 null,
-                React.createElement("input", { id: "luck", type: "number", name: "luck", min: "1", max: "10", value: character.luck })
+                React.createElement("input", { id: "luck", type: "number", name: "luck", min: "1", max: "10", value: special.luck })
               )
             )
           )
@@ -303,12 +311,13 @@ var renderCharacter = function renderCharacter() {
         React.createElement("input", { type: "hidden", name: "_csrf", value: this.props.csrf }),
         React.createElement("input", { type: "hidden", name: "_id", value: character._id }),
         React.createElement("input", { type: "hidden", name: "remainingPoints", value: remainingPoints }),
-        React.createElement("input", { type: "hidden", name: "name", value: character.name })
+        React.createElement("input", { type: "hidden", name: "name", id: "selectedCharacter", value: character.name })
       )
     )
   );
 };
 
+// renderer for character list
 var renderCharacterList = function renderCharacterList() {
   if (this.state.data.length === 0) {
     return React.createElement(
@@ -323,9 +332,6 @@ var renderCharacterList = function renderCharacterList() {
   }
 
   var characterNodes = this.state.data.map(function (character) {
-    var maxPoints = 28;
-    var totalPoints = character.strength + character.perception + character.endurance + character.charisma + character.intelligence + character.agility + character.luck;
-    var remainingPoints = maxPoints - totalPoints;
     return React.createElement(
       "div",
       { key: character._id, className: "character", name: character.name, id: character.name, onClick: this.handleClick },
@@ -360,14 +366,79 @@ var renderCharacterList = function renderCharacterList() {
   );
 };
 
-var setup = function setup(csrf) {
-  CharacterFormClass = React.createClass({
+var renderAds = function renderAds() {
+  return React.createElement(
+    "div",
+    null,
+    React.createElement(
+      "a",
+      { href: "https://www.reddit.com/r/Memeconomy/", target: "_blank" },
+      React.createElement("img", { src: "/assets/img/elvesHateHim.png", alt: "ADS", id: "ad", className: "ad" })
+    )
+  );
+};
+
+var renderDonate = function renderDonate() {
+  return React.createElement(
+    "form",
+    { id: "donateForm",
+      name: "donateForm",
+      onSubmit: this.handleSubmit,
+      className: "donateForm"
+    },
+    React.createElement(
+      "label",
+      { htmlFor: "name" },
+      "Donate: "
+    ),
+    React.createElement("input", { id: "donateAmount", type: "number", min: "1.00", step: "0.01", name: "amount" }),
+    React.createElement("input", { className: "donateSubmit", type: "submit", value: "Send" })
+  );
+};
+
+var handleDonate = function handleDonate(e) {
+  e.preventDefault();
+
+  document.getElementById("ads").style.display = "none";
+  document.getElementById("donate").style.display = "none";
+
+  return false;
+};
+
+var createAdWindow = function createAdWindow() {
+  var AdFormClass = React.createClass({
+    displayName: "AdFormClass",
+
+    handleSubmit: handleAds,
+    render: renderAds
+  });
+
+  ReactDOM.render(React.createElement(AdFormClass, null), document.querySelector("#ads"));
+};
+
+var createDonationWindow = function createDonationWindow() {
+  var DonateFormClass = React.createClass({
+    displayName: "DonateFormClass",
+
+    handleSubmit: handleDonate,
+    render: renderDonate
+  });
+
+  ReactDOM.render(React.createElement(DonateFormClass, null), document.querySelector("#donate"));
+};
+
+var createMakerWindow = function createMakerWindow(csrf) {
+  var CharacterFormClass = React.createClass({
     displayName: "CharacterFormClass",
 
     handleSubmit: handleCharacter,
     render: renderCharacterPreview
   });
 
+  ReactDOM.render(React.createElement(CharacterFormClass, { csrf: csrf }), document.querySelector("#makeCharacter"));
+};
+
+var setup = function setup(csrf) {
   CharacterListClass = React.createClass({
     displayName: "CharacterListClass",
 
@@ -402,7 +473,9 @@ var setup = function setup(csrf) {
     render: renderCharacter
   });
 
-  characterForm = ReactDOM.render(React.createElement(CharacterFormClass, { csrf: csrf }), document.querySelector("#makeCharacter"));
+  createMakerWindow(csrf);
+  createAdWindow();
+  createDonationWindow();
 
   characterListRenderer = ReactDOM.render(React.createElement(CharacterListClass, { csrf: csrf }), document.querySelector("#characters"));
 

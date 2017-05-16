@@ -1,6 +1,10 @@
 const models = require('../models');
+const stat = require('./perks.json');
 
 const Character = models.Character;
+const Special = models.Special;
+const Perk = models.Perk;
+
 
 // character page creator
 const charactersPage = (req, res) => {
@@ -9,7 +13,6 @@ const charactersPage = (req, res) => {
       console.log(err);
       return res.status(400).json({ error: 'An error occurred' });
     }
-
     return res.render('app', { csrfToken: req.csrfToken(), character: docs });
   });
 };
@@ -19,6 +22,7 @@ const createCharacter = (req, res) => {
   if (!req.body.name) {
     return res.status(400).json({ error: 'Please enter a name!' });
   }
+
   const characterData = {
     name: req.body.name,
     owner: req.session.account._id,
@@ -26,16 +30,46 @@ const createCharacter = (req, res) => {
 
   const newCharacter = new Character.CharacterModel(characterData);
 
-  const characterPromise = newCharacter.save();
+  // New Character Perks
+  const value = stat.perks;
+  const perks = [];
 
-  characterPromise.then(() => res.json({ redirect: '/characters' }));
+  for (let i = 1; i <= 229; ++i) {
+    const perkData = value[i];
 
-  characterPromise.catch((err) => {
-    console.log(err);
-    return res.status(400).json({ error: 'An error has occured.' });
+    if (perkData.characterLevel === 0) {
+      const perk = new Perk.PerkModel({
+        name: perkData.name,
+        rank: perkData.rank,
+        attributeName: perkData.attribute,
+        attributeRank: perkData.attributeLevel,
+        requiredLevel: perkData.characterLevel,
+        description: perkData.description,
+      });
+      perks.push(perk);
+    }
+  }
+
+  return newCharacter.save((err1) => {
+    if (err1) {
+      console.log(err1);
+      return res.status(400).json({ error: 'Had an error saving character' });
+    }
+
+    const specialStats = new Special.SpecialModel({
+      character: newCharacter._id,
+      nextPerks: perks,
+    });
+
+    return specialStats.save((err2) => {
+      if (err2) {
+        console.log(err2);
+        return res.status(400).json({ error: 'Had an error saving special' });
+      }
+
+      return res.json({ redirect: '/characters' });
+    });
   });
-
-  return characterPromise;
 };
 
 // returns a character by Id
@@ -43,12 +77,23 @@ const getCharacter = (request, response) => {
   const req = request;
   const res = response;
 
-  return Character.CharacterModel.findById(req.body._id, (err, docs) => {
-    if (err) {
-      console.log(err);
+  return Character.CharacterModel.findById(req.body._id, (err1, char) => {
+    if (err1) {
+      console.log(err1);
       return res.status(400).json({ error: 'An error occurred' });
     }
-    return res.json({ character: docs });
+    return Special.SpecialModel.findByCharacter(req.body._id, (err2, special) => {
+      if (err2) {
+        console.log(err2);
+        return res.status(400).json({ error: 'An error occurred' });
+      }
+      const data = {
+        character: char,
+        special,
+      };
+
+      return res.json({ character: data });
+    });
   });
 };
 
@@ -72,13 +117,25 @@ const deleteCharacter = (request, response) => {
   const req = request;
   const res = response;
 
-  return Character.CharacterModel.deleteById(req.body._id, (err, docs) => {
-    if (err) {
-      console.log(err);
+  return Character.CharacterModel.deleteById(req.body._id, (err1, char) => {
+    if (err1) {
+      console.log(err1);
       return res.status(400).json({ error: 'An error occurred' });
     }
 
-    return res.json({ characters: docs });
+    return Special.SpecialModel.deleteById(req.body._id, (err2, special) => {
+      if (err2) {
+        console.log(err2);
+        return res.status(400).json({ error: 'An error occurred' });
+      }
+
+      const data = {
+        character: char,
+        special,
+      };
+
+      return res.json({ characters: data });
+    });
   });
 };
 
@@ -88,7 +145,13 @@ const updateCharacter = (request, response) => {
   const req = request;
   const res = response;
 
-  const data = {
+  const charData = {
+    hitPoints: 80 + req.body.endurance * 5,
+    actionPoints: 60 + req.body.agility * 10,
+    carryWeight: 200 + req.body.strength * 10,
+  };
+
+  const specialData = {
     strength: req.body.strength,
     perception: req.body.perception,
     endurance: req.body.endurance,
@@ -96,27 +159,35 @@ const updateCharacter = (request, response) => {
     intelligence: req.body.intelligence,
     agility: req.body.agility,
     luck: req.body.luck,
-    hitPoints: 80 + req.body.endurance * 5,
-    actionPoints: 60 + req.body.agility * 10,
-    carryWeight: 200 + req.body.strength * 10,
   };
 
-  let pointCount = parseInt(data.strength, 10) + parseInt(data.perception, 10);
-  pointCount += parseInt(data.endurance, 10) + parseInt(data.charisma, 10);
-  pointCount += parseInt(data.intelligence, 10) + parseInt(data.agility, 10);
-  pointCount += parseInt(data.luck, 10);
+  let pointCount = parseInt(specialData.strength, 10) + parseInt(specialData.perception, 10);
+  pointCount += parseInt(specialData.endurance, 10) + parseInt(specialData.charisma, 10);
+  pointCount += parseInt(specialData.intelligence, 10) + parseInt(specialData.agility, 10);
+  pointCount += parseInt(specialData.luck, 10);
 
   if (pointCount > 28) {
     return res.status(400).json({ error: 'You are out of points' });
   }
 
-  return Character.CharacterModel.updateById(req.body._id, data, (err, docs) => {
-    if (err) {
-      console.log(err);
+  return Character.CharacterModel.updateById(req.body._id, charData, (err1, char) => {
+    if (err1) {
+      console.log(err1);
       return res.status(400).json({ error: 'An error occurred' });
     }
+    return Special.SpecialModel.updateById(req.body._id, specialData, (err2, special) => {
+      if (err2) {
+        console.log(err2);
+        return res.status(400).json({ error: 'An error occurred' });
+      }
 
-    return res.json({ characters: docs });
+      const data = {
+        character: char,
+        special,
+      };
+
+      return res.json({ characters: data });
+    });
   });
 };
 

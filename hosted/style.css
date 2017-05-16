@@ -196,7 +196,40 @@ nav:nth-child(1) {
     border: 2px solid #0ab837;
     border-radius: 4px;
     margin: 0 auto;
-    margin-top: 100px;
+    margin-top: 50px;
+}
+
+#ads {
+  margin-top: 25px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 400px;
+}
+
+.donateForm {
+    border: 2px solid #338acc;
+    height: 35px;
+    width: 600px;
+    margin-top:50px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top:10px;
+    background-color: #0ab837;
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+}
+
+.donateForm label {
+    display: inline-block;
+    width: 75px;
+    margin-left: 10px;
+    font-size: 1.2em;
+    float: left;
+    color: white;
+}
+
+.donateForm input[type=text] {
+    float:left;
 }
 
 .character {

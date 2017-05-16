@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+
 mongoose.Promise = global.Promise;
 const _ = require('underscore');
 
@@ -20,56 +21,6 @@ const CharacterSchema = new mongoose.Schema({
   level: {
     type: Number,
     min: 1,
-    default: 1,
-  },
-
-  // SPECIAL STATS
-  strength: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  perception: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  endurance: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  charisma: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  intelligence: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  agility: {
-    type: Number,
-    min: 1,
-    max: 10,
-    default: 1,
-  },
-
-  luck: {
-    type: Number,
-    min: 1,
-    max: 10,
     default: 1,
   },
 

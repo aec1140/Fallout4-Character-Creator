@@ -1,7 +1,5 @@
 let characterListRenderer; // Character List Renderer Component
-let characterForm; // Character Add Form Render Component
 let characterRenderer; // Character Renderer Component
-let CharacterFormClass; // Character Form React UI Class
 let CharacterListClass; // Character List React UI Class
 let CharacterClass; // Character React UI Class
 
@@ -26,6 +24,7 @@ const selectCharacter = function(e) {
   e.preventDefault();
 
   let id = null;
+  let csrf = document.getElementById("_csrf");
 
   const children = e.target.childNodes;
 
@@ -71,7 +70,7 @@ const updateCharacter = function(e) {
   });
 };
 
-// renderer for character creator
+// renderer for character maker
 const renderCharacterPreview = function() {
   return (
     <form id="characterForm"
@@ -89,18 +88,20 @@ const renderCharacterPreview = function() {
   );
 };
 
+
 // renderer for selected character
 const renderCharacter = function() {
 
-  if (this.state.data.length === 0) {
+  if (this.state.data.character === undefined || this.state.data.special === undefined) {
     return null;
   }
 
-  let character = this.state.data[0];
+  let character = this.state.data.character[0];
+  let special = this.state.data.special[0];
 
   const maxPoints = 28;
-  const totalPoints = character.strength + character.perception + character.endurance +
-                      character.charisma + character.intelligence + character.agility + character.luck;
+  const totalPoints = special.strength + special.perception + special.endurance +
+                      special.charisma + special.intelligence + special.agility + special.luck;
   const remainingPoints = maxPoints - totalPoints;
 
   return (
@@ -123,43 +124,43 @@ const renderCharacter = function() {
               <tr>
                 <th>Strength</th>
                 <td>
-                  <input id="strength" type="number" name="strength" min="1" max="10" value={character.strength} />
+                  <input id="strength" type="number" name="strength" min="1" max="10" value={special.strength} />
                 </td>
               </tr>
               <tr>
                 <th>Perception</th>
                 <td>
-                  <input id="perception" type="number" name="perception" min="1" max="10" value={character.perception} />
+                  <input id="perception" type="number" name="perception" min="1" max="10" value={special.perception} />
                 </td>
               </tr>
               <tr>
                 <th>Endurance</th>
                 <td>
-                  <input id="endurance" type="number" name="endurance" min="1" max="10" value={character.endurance} />
+                  <input id="endurance" type="number" name="endurance" min="1" max="10" value={special.endurance} />
                 </td>
               </tr>
               <tr>
                 <th>Charisma</th>
                 <td>
-                  <input id="charisma" type="number" name="charisma" min="1" max="10" value={character.charisma} />
+                  <input id="charisma" type="number" name="charisma" min="1" max="10" value={special.charisma} />
                 </td>
               </tr>
               <tr>
                 <th>Intelligence</th>
                 <td>
-                  <input id="intelligence" type="number" name="intelligence" min="1" max="10" value={character.intelligence} />
+                  <input id="intelligence" type="number" name="intelligence" min="1" max="10" value={special.intelligence} />
                 </td>
               </tr>
               <tr>
                 <th>Agility</th>
                 <td>
-                  <input id="agility" type="number" name="agility" min="1" max="10" value={character.agility} />
+                  <input id="agility" type="number" name="agility" min="1" max="10" value={special.agility} />
                 </td>
               </tr>
               <tr>
                 <th>Luck</th>
                 <td>
-                  <input id="luck" type="number" name="luck" min="1" max="10" value={character.luck} />
+                  <input id="luck" type="number" name="luck" min="1" max="10" value={special.luck} />
                 </td>
               </tr>
             </tbody>
@@ -182,7 +183,7 @@ const renderCharacter = function() {
           <input type="hidden" name="_csrf" value={this.props.csrf} />
           <input type="hidden" name="_id" value={character._id} />
           <input type="hidden" name="remainingPoints" value={remainingPoints} />
-          <input type="hidden" name="name" value={character.name} />
+          <input type="hidden" name="name" id="selectedCharacter" value={character.name} />
         </form>
       </div>
     </div>
@@ -200,10 +201,6 @@ const renderCharacterList = function() {
   }
 
   const characterNodes = this.state.data.map(function(character) {
-    const maxPoints = 28;
-    const totalPoints = character.strength + character.perception + character.endurance +
-                        character.charisma + character.intelligence + character.agility + character.luck;
-    const remainingPoints = maxPoints - totalPoints;
     return (
       <div key={character._id} className="character" name={character.name} id={character.name} onClick={this.handleClick} >
         <img src="/assets/img/character.png" alt="char face" className="charFace" />
@@ -222,12 +219,73 @@ const renderCharacterList = function() {
   );
 };
 
-const setup = function(csrf) {
-  CharacterFormClass = React.createClass({
+const renderAds = function() {
+  return (
+    <div>
+      <a href="https://www.reddit.com/r/Memeconomy/" target="_blank">
+        <img src="/assets/img/elvesHateHim.png" alt="ADS" id="ad" className="ad"/>
+      </a>
+    </div>
+  )
+};
+
+const renderDonate = function() {
+  return (
+    <form id="donateForm"
+        name="donateForm"
+        onSubmit={this.handleSubmit}
+        className="donateForm"
+    >
+      <label htmlFor="name">Donate: </label>
+      <input id="donateAmount" type="number" min="1.00" step="0.01" name="amount" />
+      <input className="donateSubmit" type="submit" value="Send" />
+    </form>
+  )
+};
+
+const handleDonate = function(e) {
+  e.preventDefault();
+
+  document.getElementById("ads").style.display = "none";
+  document.getElementById("donate").style.display = "none";
+
+  return false;
+};
+
+const createAdWindow = function() {
+  const AdFormClass = React.createClass({
+    handleSubmit: handleAds,
+    render: renderAds,
+  });
+
+  ReactDOM.render(
+    <AdFormClass />, document.querySelector("#ads")
+  );
+};
+
+const createDonationWindow = function() {
+  const DonateFormClass = React.createClass({
+    handleSubmit: handleDonate,
+    render: renderDonate,
+  });
+
+  ReactDOM.render(
+    <DonateFormClass />, document.querySelector("#donate")
+  );
+};
+
+const createMakerWindow = function(csrf) {
+  const CharacterFormClass = React.createClass({
     handleSubmit: handleCharacter,
     render: renderCharacterPreview,
   });
 
+  ReactDOM.render(
+    <CharacterFormClass csrf={csrf} />, document.querySelector("#makeCharacter")
+  );
+};
+
+const setup = function(csrf) {
   CharacterListClass = React.createClass({
     loadCharactersFromServer: function() {
       sendAjax('GET', '/getCharacters', null, function(data) {
@@ -258,9 +316,9 @@ const setup = function(csrf) {
     render: renderCharacter,
   });
 
-  characterForm = ReactDOM.render(
-    <CharacterFormClass csrf={csrf} />, document.querySelector("#makeCharacter")
-  );
+  createMakerWindow(csrf);
+  createAdWindow();
+  createDonationWindow();
 
   characterListRenderer = ReactDOM.render(
     <CharacterListClass csrf={csrf} />, document.querySelector("#characters")
