@@ -3,8 +3,6 @@ mongoose.Promise = global.Promise;
 
 let PerkModel = {};
 
-const convertId = mongoose.Types.ObjectId;
-
 const PerkSchema = new mongoose.Schema({
   name: {
     type: String,

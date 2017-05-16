@@ -28,6 +28,10 @@ const AccountSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  paid: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 AccountSchema.statics.toAPI = doc => ({

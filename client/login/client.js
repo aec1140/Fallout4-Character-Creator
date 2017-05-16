@@ -59,20 +59,20 @@ const handleChangePassword = (e) => {
 
 const renderLogin = function() {
   return (
-  <form id="loginForm"
-      name="loginForm"
-      onSubmit={this.handleSubmit}
-      action="/login"
-      method="POST"
-      className="mainForm"
-  >
-    <label htmlFor="username">Username: </label>
-    <input id="user" type="text" name="username" placeholder="username"/>
-    <label htmlFor="pass">Password: </label>
-    <input id="pass" type="password" name="pass" placeholder="password"/>
-    <input type="hidden" name="_csrf" value={this.props.csrf} />
-    <input className="formSubmit" type="submit" value="Sign In" />
-  </form>
+    <form id="loginForm"
+        name="loginForm"
+        onSubmit={this.handleSubmit}
+        action="/login"
+        method="POST"
+        className="mainForm"
+    >
+      <label htmlFor="username">Username: </label>
+      <input id="user" type="text" name="username" placeholder="username"/>
+      <label htmlFor="pass">Password: </label>
+      <input id="pass" type="password" name="pass" placeholder="password"/>
+      <input type="hidden" name="_csrf" value={this.props.csrf} />
+      <input className="formSubmit" type="submit" value="Sign In" />
+    </form>
   );
 };
 

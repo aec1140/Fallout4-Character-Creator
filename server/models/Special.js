@@ -62,7 +62,9 @@ const SpecialSchema = new mongoose.Schema({
     default: 1,
   },
 
-  perks: [Perk.PerkSchema],
+  nextPerks: [Perk.PerkSchema],
+
+  selectedPerks: [Perk.PerkSchema],
 });
 
 // finds a character on the db
@@ -99,7 +101,6 @@ SpecialSchema.statics.findByCharacter = (charId, callback) => {
 
 // updates a character by id and sets its stats
 SpecialSchema.statics.updateById = (charId, stat, callback) => {
-
   const id = {
     _id: charId,
   };
@@ -125,6 +126,8 @@ SpecialSchema.statics.toAPI = (doc) => ({
   intelligence: doc.intelligence,
   agility: doc.agility,
   luck: doc.luck,
+  nextPerks: doc.nextPerks,
+  selectedPerks: doc.selectedPerks,
 });
 
 SpecialModel = mongoose.model('Special', SpecialSchema);
